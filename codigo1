@@ -1,0 +1,336 @@
+
+import string
+import random
+from sys import exit
+
+# FUNCION 1 REMUEVE LAS PUNTUACIONES, SIGNO, ESPACIO Y LOS NUMEROS
+def removePunt(word):
+  arrPuntiation = ""
+  for c in string.punctuation:
+      arrPuntiation =  arrPuntiation +c
+  
+  arrPuntiation = arrPuntiation+" ";
+  arrPuntiation = arrPuntiation + ''
+  wordNew = "";
+  
+  for j in range(len(word)):
+    isPunt = False;
+    for i in range(len(arrPuntiation)):
+      if arrPuntiation[i]==word[j]:
+        isPunt = True;
+        
+    if isPunt==False:
+      wordNew = wordNew + word[j]; 
+  return wordNew;
+
+# FUNCION 2 COMVIERTE LAS LETRAS MAYUSCULAS EN MINUSCILAS
+def cleanStrs(arrStr):
+	arrNew = [];
+	for j in range(0, len(arrStr)):
+		arrNew1 = []
+		for i in arrStr[j]:
+			if(ord(i)!=32):
+				arrNew1.append(removePunt(i).upper())
+		arrNew.append(arrNew1)
+	return arrNew;
+
+def enlistar():
+	biblio=[]
+	archivo=open("Texto.txt")
+	lista=archivo.read().splitlines()
+	return lista
+
+def tamanio(a):
+	b=1
+	while((b*b) < a):
+		b=b+1
+	return b
+
+def cripto(Texto, num):
+	matriz = []
+	
+	mat = []
+	a = 0
+	for i in Texto:
+		for letra in i:
+			if(a<num):
+				a=a+1
+				mat.append(letra)
+				
+			else:
+				a=1
+				matriz.append(mat)
+				mat=[letra]
+
+	matriz.append(mat)
+		
+	while(num != len(matriz[len(matriz)-1])):
+		matriz[len(matriz)-1].append(0)
+
+	return matriz
+
+def vida(matriz, x, j):
+	if(len(matriz) >0):
+		for i in range(0,len(matriz)):
+			if(matriz[i][j]==x):
+				return False
+	return True
+
+def provar(mat):
+	for i in range(0,len(mat)):
+		for j in range(i+1,len(mat)):
+			if(mat[i]==mat[j]):
+				return False
+	return True
+
+def cvector(i,a, matriz):
+
+	while(True):
+		
+		mat = []
+		for j in range(0,a):
+			x = random.randint(1,a)
+			l = 0
+			
+			while(l<len(mat)):
+				
+				if(mat[l]==x and vida(matriz, x, j)):
+					x = random.randint(1,a) 
+					l = 0
+				else:
+					l=l+1
+			while(vida(matriz, x, j)==False):
+				x = random.randint(1,a)
+			mat.append(x)
+		
+		if(provar(mat)):
+			break
+	return mat
+
+def cuadro_latino(a):
+	matriz = []
+	
+	for i in range(0,a):
+		mat = cvector(i, a, matriz)
+			
+		matriz.append(mat)
+
+	return matriz
+
+def cambio(matriz):
+	mat = []
+	mal = []
+	for x in matriz:
+		p = []
+		l=[]
+		for y in x:
+			l.append(ord(str(y)))
+			p.append(ord(str(y))-47)	
+		mat.append(p)
+		mal.append(l)
+	return mat
+
+def ideanti(matriz):
+	mat = []
+	for i in range(0,len(matriz)):
+		pan = []
+		for j in range(0,len(matriz)):
+			if(i == j):
+				pan.append(matriz[i][j])
+			else:
+				pan.append(0)
+		mat.append(pan)
+	return mat
+
+def codificado(identidad,mat_ascii):
+	mat = []
+	
+	for i in range(0,len(mat_ascii)):
+		pan = []
+		for j in range(0,len(mat_ascii)):
+			pan.append(mat_ascii[i][j]*identidad[j][j])
+		mat.append(pan)
+	return mat
+
+def datos(matriz, num):
+	mat = []
+
+	for i in range(0,num):
+		p = []
+		for j in range(0,num):
+			p.append(0)
+		mat.append(p)
+
+	l = []
+	w = []
+	for i in range(0,num):
+		x = random.randint(0,num-1)
+		
+		q = 0
+		while(q<len(l) and i==x):
+			if(l[q] == matriz[i][x] and i==x):
+				q = 0				
+				x = random.randint(0,num-1)
+			else:
+				q = q+1
+		w.append(x)
+		l.append(matriz[i][x])
+		mat[i][x]=matriz[i][x]
+
+
+	for i in range(0,int(num/2)+(num)+(int(num/2))):
+		x = random.randint(0,num-1)
+		y = random.randint(0,num-1)
+		
+		while(mat[x][y] != 0 or x == y):
+			x = random.randint(0,num-1)
+			y = random.randint(0,num-1)
+
+		mat[x][y] = matriz[x][y]
+
+	return mat
+
+def prueba(nulos):
+	for i in range(0,len(nulos)):
+		if(nulos[i][i]!=0):
+			return False
+	return True
+
+##---------------------------------------------------------------------------------------------
+#codigo para el RSA
+
+def Cripto_RSA(e,m):
+	i=0
+	while i<m :
+		if (i*e)%m == 1:
+			return i
+		i+=1
+	return False 
+
+def cifrar(m, publ):
+	return int((m**publ[0])%publ[1])
+	
+
+def descifrar(c,priv):
+	return int((c**priv[0])%priv[1])
+
+def primos(p):
+	mat = [2]
+	a = 2
+	for i in range(0,p):
+		b = 0
+
+		while(b<len(mat)):
+			if(a%mat[b]==0):
+				a = a+1
+				b=0
+			else:
+				b = b+1
+		mat.append(a)
+	return mat
+
+def RSA(identidad, publica):
+	for i in range(0,len(identidad)):
+		identidad[i][i] = publica[identidad[i][i]-1]
+	return identidad
+
+##---------------------------------------------------------------------------------------------
+
+Texto = cleanStrs(enlistar())
+a=0
+print "-----------------------------------\n Lectura del mensaje mensaje y generar un Vector"
+for x in Texto:
+	a = a+len(x)
+print Texto
+
+NUMmatriz = tamanio(a)
+
+print "-----------------------------------\n Crear una matriz del mensaje"
+matriz = cripto(Texto, NUMmatriz)
+for x in matriz:
+	print x
+
+print "-----------------------------------\n Cambiar la matriz mensaje a codigo ascii y se le resta 47"
+mat_ascii = cambio(matriz)
+for x in mat_ascii:
+	print x
+
+print "-----------------------------------\n Crear un Cuadro Latino de tamanio de la matriz"
+matriz2 = cuadro_latino(NUMmatriz)
+for x in matriz2:
+	print x
+
+print "-----------------------------------\n Matriz identidad del Cuadro latino"
+identidad = ideanti(matriz2)
+for x in identidad:
+	print x
+
+#---------------------------------------------------------------------------------------------------
+# Funcion para el RSA, crear la identidad con la codificacion
+print "\n-----------------------------------\n Funcion para calcular la los valores de RSA\n"
+
+dato = []
+
+Clave_publica = []
+
+Clave_privada = []
+
+tal = primos(50)
+
+while(True):
+	p = random.randint(10,50)	
+	q = random.randint(10,50)
+	e = random.randint(20,50)
+
+	a = tal[p-1]
+	b = tal[q-1]
+	n =	a*b
+
+	fi= (a-1)*(b-1)
+	d = Cripto_RSA(e,fi)
+
+	if(d and p!=q):
+		break
+
+Clave_publica = [e,n]
+Clave_privada = [d,n]
+
+print "Clave publica ", Clave_publica
+print "Clave privada ", Clave_privada
+print
+for i in range(1,NUMmatriz+1):
+	dato.append(i)
+
+publica = []
+privada = []
+
+for x in dato:
+	publica.append(cifrar(x,Clave_publica))
+
+for x in publica:
+	privada.append(descifrar(x,Clave_privada))
+print "Datos del criptacion en el RSA"
+print publica
+print privada
+print
+#------------------------------------------------------------------------------------------------
+
+print "-----------------------------------\n Matriz identidad del Cuadro latino con el cambio de RSA"
+identidad2 = RSA(identidad, publica)
+for x in identidad2:
+	print x
+
+print "-----------------------------------\n Codificar la matriz mesaje con la matriz identidad (M*I)"
+codificar = codificado(identidad,mat_ascii)
+for x in codificar:
+	print x
+
+print "-----------------------------------\n Cuadro Latino oculto"
+while(True):
+	nulos = datos(matriz2, NUMmatriz)
+	if(prueba(nulos)):
+		break
+for x in nulos:
+	print x
+print "-----------------------------------"
+
